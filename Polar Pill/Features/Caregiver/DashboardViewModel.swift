@@ -116,6 +116,32 @@ final class DashboardViewModel {
             }
     }
 
+    /// Week-to-date adherence for the detail header, using the same one-log
+    /// per medication/day rule as the visible medication list.
+    func weeklyDoseStats(for member: FamilyMember) async -> (taken: Int, scheduled: Int) {
+        guard let service else { return (0, 0) }
+
+        let medications = medicationsByMember[member.id] ?? []
+        let medicationIDs = medications.map(\.id)
+        guard !medicationIDs.isEmpty else { return (0, 0) }
+
+        let calendar = Calendar.current
+        let now = Date.now
+        guard let weekStart = calendar.dateInterval(of: .weekOfYear, for: now)?.start,
+              let tomorrowStart = calendar.date(byAdding: .day, value: 1, to: calendar.startOfDay(for: now)) else {
+            return (0, 0)
+        }
+
+        let logs = (try? await service.fetchDoseLogs(
+            medicationIDs: medicationIDs,
+            from: weekStart,
+            to: tomorrowStart
+        )) ?? []
+
+        let currentLogs = latestDailyLogs(from: logs, calendar: calendar)
+        return (currentLogs.filter { $0.status == .taken }.count, currentLogs.count)
+    }
+
     func addMember(_ draft: DraftFamilyMember) async {
         guard let service else {
             errorMessage = "Supabase is not configured."
@@ -210,6 +236,22 @@ final class DashboardViewModel {
             )
         }
     }
+
+    private func latestDailyLogs(from logs: [DoseLog], calendar: Calendar) -> [DoseLog] {
+        Dictionary(
+            logs.map { log in
+                (DailyDoseKey(medicationID: log.medicationID, day: calendar.startOfDay(for: log.scheduledFor)), log)
+            },
+            uniquingKeysWith: { $0.scheduledFor > $1.scheduledFor ? $0 : $1 }
+        )
+        .values
+        .map { $0 }
+    }
+}
+
+private struct DailyDoseKey: Hashable {
+    let medicationID: UUID
+    let day: Date
 }
 
 extension Error {

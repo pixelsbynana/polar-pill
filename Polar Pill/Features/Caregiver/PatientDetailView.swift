@@ -97,6 +97,9 @@ struct PatientDetailView: View {
             Text("Add a phone number for \(member.displayName) to call them from here.")
         }
         .task { await loadWeekStats() }
+        .onChange(of: dashboard.todayLogByMedication) { _, _ in
+            Task { await loadWeekStats() }
+        }
     }
 
     private func call() {
@@ -116,16 +119,8 @@ struct PatientDetailView: View {
         }
     }
 
-    /// "18/21 doses taken this week" — logs from the start of the week to now.
+    /// "18/21 doses taken this week" — uses the dashboard's normalized dose-log rules.
     private func loadWeekStats() async {
-        guard let client = SupabaseService.shared?.client else { return }
-        let service = DataService(client: client)
-        let calendar = Calendar.current
-        let now = Date.now
-        guard let weekStart = calendar.dateInterval(of: .weekOfYear, for: now)?.start else { return }
-
-        let medicationIDs = (dashboard.medicationsByMember[member.id] ?? []).map(\.id)
-        let logs = (try? await service.fetchDoseLogs(medicationIDs: medicationIDs, from: weekStart, to: now)) ?? []
-        weekStats = (logs.filter { $0.status == .taken }.count, logs.count)
+        weekStats = await dashboard.weeklyDoseStats(for: member)
     }
 }

@@ -3,8 +3,8 @@
 //  Polar Pill
 //
 //  Add/edit medication form from the mockups: name, dosage, assign-to
-//  segmented toggle, time picker, frequency radios (custom reveals a
-//  day picker), reminders toggle, pinned save button.
+//  segmented toggle, time picker, frequency picker, weekday picker for
+//  weekly/custom schedules, reminders toggle, pinned save button.
 //
 
 import SwiftUI
@@ -37,12 +37,13 @@ struct AddEditMedicationView: View {
         _name = State(initialValue: existing?.name ?? "")
         _dosage = State(initialValue: existing?.dosage ?? "")
         _assignedMemberID = State(initialValue: existing?.familyMemberID ?? preselectedMember?.id ?? members.first?.id)
-        _frequency = State(initialValue: existing?.frequency ?? .daily)
-        _selectedWeekdays = State(initialValue: Set(existing?.customSchedule?.weekdays ?? []))
-        _remindersEnabled = State(initialValue: existing?.remindersEnabled ?? true)
-
         let components = existing?.timeComponents ?? (hour: 8, minute: 0)
         let date = Calendar.current.date(bySettingHour: components.hour, minute: components.minute, second: 0, of: .now) ?? .now
+        let initialFrequency = existing?.frequency ?? .daily
+        let initialWeekdays = Set(existing?.customSchedule?.weekdays ?? [])
+        _frequency = State(initialValue: initialFrequency)
+        _selectedWeekdays = State(initialValue: Self.normalizedWeekdays(initialWeekdays, for: initialFrequency, fallbackDate: date))
+        _remindersEnabled = State(initialValue: existing?.remindersEnabled ?? true)
         _timeOfDay = State(initialValue: date)
     }
 
@@ -71,21 +72,12 @@ struct AddEditMedicationView: View {
                         // from a specific patient, so assignedMemberID comes
                         // from that context (preselected or the existing med).
 
-                        field("Time of day") {
-                            DatePicker("Time of day", selection: $timeOfDay, displayedComponents: .hourAndMinute)
-                                .labelsHidden()
-                                .padding(8)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .background(Theme.card, in: RoundedRectangle(cornerRadius: 12))
-                                .overlay(RoundedRectangle(cornerRadius: 12).stroke(Theme.cardBorder, lineWidth: 1))
-                        }
-
                         field("Frequency") {
                             VStack(alignment: .leading, spacing: 10) {
                                 Menu {
                                     ForEach(MedFrequency.allCases, id: \.self) { option in
                                         Button {
-                                            frequency = option
+                                            selectFrequency(option)
                                         } label: {
                                             if frequency == option {
                                                 Label(option.displayName, systemImage: "checkmark")
@@ -111,10 +103,16 @@ struct AddEditMedicationView: View {
                                 }
                                 .accessibilityLabel("Frequency: \(frequency.displayName)")
 
-                                if frequency == .custom {
+                                if frequency == .weekly || frequency == .custom {
                                     weekdayPicker
                                 }
                             }
+                        }
+
+                        field("Time of day") {
+                            DatePicker("Time of day", selection: $timeOfDay, displayedComponents: .hourAndMinute)
+                                .labelsHidden()
+                                .frame(maxWidth: .infinity, alignment: .leading)
                         }
 
                         field("Reminders") {
@@ -222,7 +220,7 @@ struct AddEditMedicationView: View {
             ForEach(1...7, id: \.self) { day in
                 let selected = selectedWeekdays.contains(day)
                 Button {
-                    if selected { selectedWeekdays.remove(day) } else { selectedWeekdays.insert(day) }
+                    toggleWeekday(day)
                 } label: {
                     Text(Self.weekdayNames[day - 1])
                         .font(.caption.bold())
@@ -235,6 +233,24 @@ struct AddEditMedicationView: View {
                 .buttonStyle(.plain)
                 .accessibilityAddTraits(selected ? .isSelected : [])
             }
+        }
+    }
+
+    private func selectFrequency(_ option: MedFrequency) {
+        frequency = option
+        selectedWeekdays = Self.normalizedWeekdays(selectedWeekdays, for: option, fallbackDate: timeOfDay)
+    }
+
+    private func toggleWeekday(_ day: Int) {
+        if frequency == .weekly {
+            selectedWeekdays = [day]
+            return
+        }
+
+        if selectedWeekdays.contains(day) {
+            selectedWeekdays.remove(day)
+        } else {
+            selectedWeekdays.insert(day)
         }
     }
 
@@ -279,7 +295,7 @@ struct AddEditMedicationView: View {
     private var canSave: Bool {
         !name.trimmingCharacters(in: .whitespaces).isEmpty
             && assignedMemberID != nil
-            && (frequency != .custom || !selectedWeekdays.isEmpty)
+            && (frequency == .daily || !selectedWeekdays.isEmpty)
     }
 
     private func save() async {
@@ -317,5 +333,21 @@ struct AddEditMedicationView: View {
         } catch {
             errorMessage = error.localizedDescription
         }
+    }
+
+    private static func normalizedWeekdays(_ weekdays: Set<Int>, for frequency: MedFrequency, fallbackDate: Date) -> Set<Int> {
+        switch frequency {
+        case .daily:
+            return weekdays
+        case .weekly:
+            return [weekdays.sorted().first ?? mondayBasedWeekday(for: fallbackDate)]
+        case .custom:
+            return weekdays
+        }
+    }
+
+    private static func mondayBasedWeekday(for date: Date, calendar: Calendar = .current) -> Int {
+        let sundayBased = calendar.component(.weekday, from: date)
+        return sundayBased == 1 ? 7 : sundayBased - 1
     }
 }
