@@ -32,6 +32,84 @@ enum MedicationQR {
     }
 }
 
+// MARK: - Printing helpers
+
+enum LabelPrinter {
+    /// Opens the AirPrint dialog for a PDF.
+    @MainActor
+    static func printPDF(at url: URL, jobName: String) {
+        let printInfo = UIPrintInfo(dictionary: nil)
+        printInfo.outputType = .general
+        printInfo.jobName = jobName
+
+        let controller = UIPrintInteractionController.shared
+        controller.printInfo = printInfo
+        controller.printingItem = url
+        controller.present(animated: true)
+    }
+
+    /// Renders a SwiftUI view to a single-page PDF at US Letter width.
+    @MainActor
+    static func renderPDF(content: some View, filename: String) -> URL? {
+        let renderer = ImageRenderer(content: content.frame(width: 612))
+        let url = FileManager.default.temporaryDirectory.appendingPathComponent(filename)
+
+        renderer.render { size, renderInContext in
+            var mediaBox = CGRect(origin: .zero, size: size)
+            guard let consumer = CGDataConsumer(url: url as CFURL),
+                  let context = CGContext(consumer: consumer, mediaBox: &mediaBox, nil) else {
+                return
+            }
+            context.beginPDFPage(nil)
+            renderInContext(context)
+            context.endPDFPage()
+            context.closePDF()
+        }
+
+        return FileManager.default.fileExists(atPath: url.path) ? url : nil
+    }
+}
+
+// MARK: - All-medications label sheet (dashboard "Print QR labels")
+
+enum MedicationLabelsPDF {
+    /// One page with a label for every medication a family member takes.
+    @MainActor
+    static func render(medications: [Medication], patientName: String) -> URL? {
+        guard !medications.isEmpty else { return nil }
+        return LabelPrinter.renderPDF(
+            content: AllMedicationsLabelSheet(medications: medications, patientName: patientName),
+            filename: "Polar Pill QR labels — \(patientName).pdf"
+        )
+    }
+}
+
+private struct AllMedicationsLabelSheet: View {
+    let medications: [Medication]
+    let patientName: String
+
+    var body: some View {
+        VStack(spacing: 24) {
+            Text("Polar Pill — QR labels for \(patientName)")
+                .font(.headline)
+
+            let columns = [GridItem(.flexible(), spacing: 24), GridItem(.flexible(), spacing: 24)]
+            LazyVGrid(columns: columns, spacing: 24) {
+                ForEach(medications) { medication in
+                    MedicationLabel(medication: medication, patientName: patientName)
+                }
+            }
+
+            Text("Cut along the dashed lines and stick each label on the matching medication box.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+        .padding(36)
+        .background(.white)
+        .environment(\.colorScheme, .light)
+    }
+}
+
 // MARK: - Label sheet
 
 struct MedicationQRLabelView: View {
@@ -132,7 +210,7 @@ struct MedicationQRLabelView: View {
 
 // MARK: - Single label
 
-private struct MedicationLabel: View {
+struct MedicationLabel: View {
     let medication: Medication
     let patientName: String
 

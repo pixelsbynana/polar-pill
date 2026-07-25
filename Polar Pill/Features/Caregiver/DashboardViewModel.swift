@@ -17,14 +17,15 @@ final class DashboardViewModel {
     var medicationsByMember: [UUID: [Medication]] = [:]
     /// Today's dose log per medication id.
     var todayLogByMedication: [UUID: DoseLog] = [:]
-    /// Unacknowledged alerts, newest first.
+    /// Alert history (opened and unopened), newest first.
     var alerts: [MissedDoseAlert] = []
     /// The alert currently shown as the "Check in on [Name]" screen.
     var presentedAlert: MissedDoseAlert?
     var isLoading = false
     var errorMessage: String?
 
-    var unreadAlertCount: Int { alerts.count }
+    /// Alerts not yet opened/acknowledged.
+    var unreadAlertCount: Int { alerts.filter { $0.acknowledgedAt == nil }.count }
 
     private var realtimeTask: Task<Void, Never>?
 
@@ -93,7 +94,7 @@ final class DashboardViewModel {
                 uniquingKeysWith: { $0.scheduledFor > $1.scheduledFor ? $0 : $1 }
             )
 
-            alerts = (try? await service.fetchUnacknowledgedAlerts()) ?? []
+            alerts = (try? await service.fetchAlerts()) ?? []
         } catch {
             // SwiftUI cancels .task/.refreshable work on view changes —
             // not a user-facing failure; the next load will succeed.
@@ -152,12 +153,17 @@ final class DashboardViewModel {
         }
     }
 
+    /// Marks an alert as opened/acknowledged. Idempotent — already-opened
+    /// alerts stay in the history untouched.
     func acknowledge(_ alert: MissedDoseAlert) async {
-        guard let service else { return }
+        guard let service, alert.acknowledgedAt == nil else { return }
         do {
             let userID = try await service.currentUserID()
             try await service.acknowledgeAlert(id: alert.id, by: userID)
-            alerts.removeAll { $0.id == alert.id }
+            if let index = alerts.firstIndex(where: { $0.id == alert.id }) {
+                alerts[index].acknowledgedAt = .now
+                alerts[index].acknowledgedBy = userID
+            }
         } catch {
             guard !error.isTaskCancellation else { return }
             errorMessage = error.localizedDescription
@@ -195,9 +201,9 @@ final class DashboardViewModel {
 
     private func handleAlertInsert(_ insert: InsertAction) async {
         guard let service else { return }
-        alerts = (try? await service.fetchUnacknowledgedAlerts()) ?? alerts
+        alerts = (try? await service.fetchAlerts()) ?? alerts
         // Surface as a local notification (MVP stand-in for APNs push).
-        if let newest = alerts.first {
+        if let newest = alerts.first(where: { $0.acknowledgedAt == nil }) {
             await NotificationManager.shared.postMissedDoseNotification(
                 alertID: newest.id,
                 message: newest.message

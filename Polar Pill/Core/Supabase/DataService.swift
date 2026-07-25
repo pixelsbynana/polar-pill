@@ -193,13 +193,13 @@ struct DataService {
 
     // MARK: - Alerts
 
-    /// Unacknowledged alerts, newest first (drives the bell badge + alert screen).
-    func fetchUnacknowledgedAlerts() async throws -> [MissedDoseAlert] {
+    /// Alert history, newest first (drives the bell badge + notification list).
+    func fetchAlerts(limit: Int = 100) async throws -> [MissedDoseAlert] {
         try await client
             .from("alerts")
             .select()
-            .is("acknowledged_at", value: nil)
             .order("created_at", ascending: false)
+            .limit(limit)
             .execute()
             .value
     }

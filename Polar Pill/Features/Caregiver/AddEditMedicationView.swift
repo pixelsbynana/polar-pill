@@ -67,38 +67,9 @@ struct AddEditMedicationView: View {
                                 .overlay(RoundedRectangle(cornerRadius: 12).stroke(Theme.cardBorder, lineWidth: 1))
                         }
 
-                        field("Assign to") {
-                            // Dropdown of family members — scales better than
-                            // segmented buttons as the family grows.
-                            Menu {
-                                ForEach(members) { member in
-                                    Button {
-                                        assignedMemberID = member.id
-                                    } label: {
-                                        if assignedMemberID == member.id {
-                                            Label(member.displayName, systemImage: "checkmark")
-                                        } else {
-                                            Text(member.displayName)
-                                        }
-                                    }
-                                }
-                            } label: {
-                                HStack {
-                                    Text(members.first { $0.id == assignedMemberID }?.displayName ?? "Choose a family member")
-                                        .foregroundStyle(assignedMemberID == nil ? Theme.secondaryText : .primary)
-                                    Spacer()
-                                    Image(systemName: "chevron.up.chevron.down")
-                                        .font(.footnote)
-                                        .foregroundStyle(Theme.secondaryText)
-                                }
-                                .padding(14)
-                                .frame(minHeight: Theme.minTapTarget)
-                                .background(Theme.card, in: RoundedRectangle(cornerRadius: 12))
-                                .overlay(RoundedRectangle(cornerRadius: 12).stroke(Theme.cardBorder, lineWidth: 1))
-                                .contentShape(RoundedRectangle(cornerRadius: 12))
-                            }
-                            .accessibilityLabel("Assign to family member")
-                        }
+                        // No "Assign to" control: the form is always opened
+                        // from a specific patient, so assignedMemberID comes
+                        // from that context (preselected or the existing med).
 
                         field("Time of day") {
                             DatePicker("Time of day", selection: $timeOfDay, displayedComponents: .hourAndMinute)
@@ -110,13 +81,38 @@ struct AddEditMedicationView: View {
                         }
 
                         field("Frequency") {
-                            VStack(alignment: .leading, spacing: 4) {
-                                ForEach(MedFrequency.allCases, id: \.self) { option in
-                                    frequencyRadio(option)
+                            VStack(alignment: .leading, spacing: 10) {
+                                Menu {
+                                    ForEach(MedFrequency.allCases, id: \.self) { option in
+                                        Button {
+                                            frequency = option
+                                        } label: {
+                                            if frequency == option {
+                                                Label(option.displayName, systemImage: "checkmark")
+                                            } else {
+                                                Text(option.displayName)
+                                            }
+                                        }
+                                    }
+                                } label: {
+                                    HStack {
+                                        Text(frequency.displayName)
+                                            .foregroundStyle(.primary)
+                                        Spacer()
+                                        Image(systemName: "chevron.up.chevron.down")
+                                            .font(.footnote)
+                                            .foregroundStyle(Theme.secondaryText)
+                                    }
+                                    .padding(14)
+                                    .frame(minHeight: Theme.minTapTarget)
+                                    .background(Theme.card, in: RoundedRectangle(cornerRadius: 12))
+                                    .overlay(RoundedRectangle(cornerRadius: 12).stroke(Theme.cardBorder, lineWidth: 1))
+                                    .contentShape(RoundedRectangle(cornerRadius: 12))
                                 }
+                                .accessibilityLabel("Frequency: \(frequency.displayName)")
+
                                 if frequency == .custom {
                                     weekdayPicker
-                                        .padding(.top, 6)
                                 }
                             }
                         }
@@ -219,23 +215,6 @@ struct AddEditMedicationView: View {
                 .foregroundStyle(Theme.secondaryText)
             content()
         }
-    }
-
-    private func frequencyRadio(_ option: MedFrequency) -> some View {
-        Button {
-            frequency = option
-        } label: {
-            HStack(spacing: 10) {
-                Image(systemName: frequency == option ? "largecircle.fill.circle" : "circle")
-                    .foregroundStyle(frequency == option ? Theme.primary : Theme.secondaryText)
-                Text(option.displayName)
-                Spacer()
-            }
-            .frame(minHeight: Theme.minTapTarget - 6)
-            .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
-        .accessibilityAddTraits(frequency == option ? .isSelected : [])
     }
 
     private var weekdayPicker: some View {

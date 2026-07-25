@@ -11,6 +11,7 @@ import SwiftUI
 struct DashboardView: View {
     @Bindable var viewModel: DashboardViewModel
     @State private var showAddMemberSheet = false
+    @State private var showAlertsList = false
 
     var body: some View {
         NavigationStack {
@@ -38,7 +39,11 @@ struct DashboardView: View {
                                         name: member.displayName,
                                         medications: viewModel.todaysMedications(for: member).map {
                                             ($0.medication.name, $0.medication.displayTime, $0.status, $0.takenAt)
-                                        }
+                                        },
+                                        // Only offered when the member has medications.
+                                        onPrintLabels: (viewModel.medicationsByMember[member.id] ?? []).isEmpty
+                                            ? nil
+                                            : { printLabels(for: member) }
                                     )
                                 }
                                 .buttonStyle(.plain)
@@ -85,6 +90,10 @@ struct DashboardView: View {
             }
             .presentationDetents([.medium])
         }
+        .sheet(isPresented: $showAlertsList) {
+            AlertsListView(viewModel: viewModel)
+        }
+        // Push-notification deep links still open the alert detail directly.
         .sheet(item: $viewModel.presentedAlert) { alert in
             MissedAlertView(
                 alert: alert,
@@ -92,6 +101,14 @@ struct DashboardView: View {
                 onAcknowledge: { await viewModel.acknowledge(alert) }
             )
         }
+    }
+
+    /// One page with a QR label for every medication this member takes,
+    /// straight to the AirPrint dialog.
+    private func printLabels(for member: FamilyMember) {
+        let medications = viewModel.medicationsByMember[member.id] ?? []
+        guard let url = MedicationLabelsPDF.render(medications: medications, patientName: member.displayName) else { return }
+        LabelPrinter.printPDF(at: url, jobName: "Polar Pill — \(member.displayName) QR labels")
     }
 
     // MARK: - Header (logo + bell)
@@ -110,9 +127,9 @@ struct DashboardView: View {
 
             Spacer()
 
-            // Bell with unread-alert badge dot; tap opens the newest alert.
+            // Bell with unread-alert badge dot; tap opens the notification list.
             Button {
-                viewModel.presentLatestAlert()
+                showAlertsList = true
             } label: {
                 ZStack(alignment: .topTrailing) {
                     Image(systemName: "bell")
@@ -120,6 +137,7 @@ struct DashboardView: View {
                         .frame(width: Theme.minTapTarget, height: Theme.minTapTarget)
                         .background(Theme.card, in: Circle())
                         .overlay(Circle().stroke(Theme.cardBorder, lineWidth: 1))
+                        .contentShape(Circle())
                     if viewModel.unreadAlertCount > 0 {
                         Circle()
                             .fill(Theme.danger)
@@ -129,10 +147,9 @@ struct DashboardView: View {
                 }
             }
             .buttonStyle(.plain)
-            .disabled(viewModel.unreadAlertCount == 0)
             .accessibilityLabel(viewModel.unreadAlertCount > 0
-                                ? "\(viewModel.unreadAlertCount) unread alerts"
-                                : "No unread alerts")
+                                ? "Notifications: \(viewModel.unreadAlertCount) unread"
+                                : "Notifications")
         }
     }
 
