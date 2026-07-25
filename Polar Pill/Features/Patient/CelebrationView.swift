@@ -16,6 +16,8 @@ struct CelebrationView: View {
         ZStack {
             Theme.navy.ignoresSafeArea()
 
+            SnowflakeBackground()
+
             VStack(spacing: 20) {
                 Spacer()
 
