@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- Supabase configuration injected from Config/Config.xcconfig -->
+	<key>SupabaseURL</key>
+	<string>$(SUPABASE_URL)</string>
+	<key>SupabaseAnonKey</key>
+	<string>$(SUPABASE_ANON_KEY)</string>
+	<!-- Usage descriptions for dose-confirmation scanning -->
+	<key>NSCameraUsageDescription</key>
+	<string>Polar Pill uses the camera to scan the QR code on your medication box so a dose can be marked as taken.</string>
+	<key>NFCReaderUsageDescription</key>
+	<string>Polar Pill uses NFC so you can tap your phone on the medication box to mark a dose as taken.</string>
+</dict>
+</plist>

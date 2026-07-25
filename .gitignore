@@ -1,0 +1,22 @@
+# Real Supabase credentials — copy Config.example.xcconfig to Config.xcconfig
+# and fill in your own values (see README).
+Config/Config.xcconfig
+
+# macOS
+.DS_Store
+
+# Xcode user state
+xcuserdata/
+*.xcuserstate
+**/xcshareddata/xcbaselines/
+
+# Build artifacts
+build/
+DerivedData/
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# Swift Package Manager
+.swiftpm/
+.build/

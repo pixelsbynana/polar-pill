@@ -1,0 +1,23 @@
+//
+//  Config.example.xcconfig
+//  Polar Pill
+//
+//  Template — copy this file to Config.xcconfig (same folder) and fill in
+//  your Supabase project's values (Dashboard → Project Settings → API).
+//  Config.xcconfig is gitignored so credentials never land in the repo.
+//
+//  The anon key is a public client key protected by RLS — safe to ship in
+//  the app binary. NEVER put the service_role key (or any other secret) here.
+//
+//  Note: `//` is a comment in xcconfig, so URLs escape it as `/$()/`.
+
+SUPABASE_URL = https:/$()/YOUR-PROJECT-REF.supabase.co
+SUPABASE_ANON_KEY = YOUR-SUPABASE-ANON-KEY
+
+// Spec requires iOS 17+ minimum deployment.
+IPHONEOS_DEPLOYMENT_TARGET = 17.0
+
+// Merged with the auto-generated Info.plist at build time.
+// Kept outside any folder added to the Xcode project so it isn't
+// also copied as a bundle resource (which causes a build conflict).
+INFOPLIST_FILE = SupportFiles/Info.plist

@@ -6,6 +6,11 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		39B2B95330150B750097340B /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = 39B2B95230150B750097340B /* Supabase */; };
+		39B2B95830150BF00097340B /* Config.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 39B2B95430150BF00097340B /* Config.xcconfig */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		39B2B9243015073A0097340B /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -27,22 +32,13 @@
 		39B2B914301507380097340B /* Polar Pill.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Polar Pill.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		39B2B9233015073A0097340B /* Polar PillTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Polar PillTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		39B2B92D3015073A0097340B /* Polar PillUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Polar PillUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		39B2B95430150BF00097340B /* Config.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		39B2B916301507380097340B /* Polar Pill */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = "Polar Pill";
-			sourceTree = "<group>";
-		};
-		39B2B9263015073A0097340B /* Polar PillTests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = "Polar PillTests";
-			sourceTree = "<group>";
-		};
-		39B2B9303015073A0097340B /* Polar PillUITests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = "Polar PillUITests";
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -52,6 +48,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				39B2B95330150B750097340B /* Supabase in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -75,9 +72,8 @@
 		39B2B90B301507380097340B = {
 			isa = PBXGroup;
 			children = (
+				39B2B95630150BF00097340B /* Config */,
 				39B2B916301507380097340B /* Polar Pill */,
-				39B2B9263015073A0097340B /* Polar PillTests */,
-				39B2B9303015073A0097340B /* Polar PillUITests */,
 				39B2B915301507380097340B /* Products */,
 			);
 			sourceTree = "<group>";
@@ -90,6 +86,14 @@
 				39B2B92D3015073A0097340B /* Polar PillUITests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		39B2B95630150BF00097340B /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				39B2B95430150BF00097340B /* Config.xcconfig */,
+			);
+			path = Config;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -112,6 +116,7 @@
 			);
 			name = "Polar Pill";
 			packageProductDependencies = (
+				39B2B95230150B750097340B /* Supabase */,
 			);
 			productName = "Polar Pill";
 			productReference = 39B2B914301507380097340B /* Polar Pill.app */;
@@ -129,9 +134,6 @@
 			);
 			dependencies = (
 				39B2B9253015073A0097340B /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				39B2B9263015073A0097340B /* Polar PillTests */,
 			);
 			name = "Polar PillTests";
 			packageProductDependencies = (
@@ -152,9 +154,6 @@
 			);
 			dependencies = (
 				39B2B92F3015073A0097340B /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				39B2B9303015073A0097340B /* Polar PillUITests */,
 			);
 			name = "Polar PillUITests";
 			packageProductDependencies = (
@@ -195,6 +194,9 @@
 			);
 			mainGroup = 39B2B90B301507380097340B;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				39B2B95130150B750097340B /* XCRemoteSwiftPackageReference "supabase-swift" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 39B2B915301507380097340B /* Products */;
 			projectDirPath = "";
@@ -212,6 +214,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				39B2B95830150BF00097340B /* Config.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -271,6 +274,7 @@
 /* Begin XCBuildConfiguration section */
 		39B2B9353015073A0097340B /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 39B2B95430150BF00097340B /* Config.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -335,6 +339,7 @@
 		};
 		39B2B9363015073A0097340B /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 39B2B95430150BF00097340B /* Config.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -578,6 +583,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		39B2B95130150B750097340B /* XCRemoteSwiftPackageReference "supabase-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/supabase/supabase-swift.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.5.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		39B2B95230150B750097340B /* Supabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 39B2B95130150B750097340B /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Supabase;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 39B2B90C301507380097340B /* Project object */;
 }
