@@ -22,24 +22,35 @@ struct WeeklyBarChart: View {
     let days: [AdherenceDay]
 
     var body: some View {
+        // Index-keyed (categorical) x values stay unique even when labels
+        // repeat (M T W T F S S).
         Chart(Array(days.enumerated()), id: \.element.id) { index, day in
             BarMark(
                 x: .value("Day", "\(index)"),
-                // Missed days render slightly shorter, like the mockup.
+                // Missed days render slightly shorter, like the mockup;
+                // days with no data (e.g. future days) show a small stub.
                 y: .value("Adherence", day.ratio.map { max($0, 0.15) } ?? 0.05),
                 width: .ratio(0.62)
             )
             .foregroundStyle(day.allTaken ? Theme.primary : Theme.chartGray)
             .cornerRadius(3)
-            .annotation(position: .bottom, spacing: 6) {
-                Text(day.label)
-                    .font(.caption2)
-                    .foregroundStyle(Theme.secondaryText)
-            }
         }
         .chartYAxis(.hidden)
-        .chartXAxis(.hidden)
         .chartYScale(domain: 0...1)
+        // Day labels as axis marks — laid out inside the chart's frame,
+        // so nothing spills out of the card.
+        .chartXAxis {
+            AxisMarks(values: days.indices.map { "\($0)" }) { value in
+                AxisValueLabel(centered: true) {
+                    if let key = value.as(String.self),
+                       let index = Int(key), days.indices.contains(index) {
+                        Text(days[index].label)
+                            .font(.caption2)
+                            .foregroundStyle(Theme.secondaryText)
+                    }
+                }
+            }
+        }
         .frame(height: 120)
         .accessibilityLabel("Adherence chart: \(days.filter(\.allTaken).count) of \(days.count) periods fully taken")
     }

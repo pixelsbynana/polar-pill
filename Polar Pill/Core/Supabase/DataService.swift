@@ -48,7 +48,6 @@ struct DataService {
     private struct MemberInsert: Encodable {
         let family_id: UUID
         let relationship_label: String
-        let is_remote: Bool
         let invite_email: String?
         let phone: String?
     }
@@ -59,7 +58,6 @@ struct DataService {
             .insert(MemberInsert(
                 family_id: familyID,
                 relationship_label: draft.name,
-                is_remote: draft.isRemote,
                 invite_email: draft.email.isEmpty ? nil : draft.email,
                 phone: draft.phone.isEmpty ? nil : draft.phone
             ))

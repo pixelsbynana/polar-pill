@@ -202,6 +202,7 @@ struct ReportsView: View {
                 }
                 .frame(maxWidth: .infinity)
                 .frame(minHeight: Theme.minTapTarget + 8)
+                .contentShape(RoundedRectangle(cornerRadius: 14))
             }
             .buttonStyle(.plain)
             .background(Theme.card, in: RoundedRectangle(cornerRadius: 14))
@@ -218,6 +219,7 @@ struct ReportsView: View {
                     .foregroundStyle(Theme.primary)
                     .frame(minHeight: Theme.minTapTarget)
                     .padding(.horizontal, 12)
+                    .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
         }

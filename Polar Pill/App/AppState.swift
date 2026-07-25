@@ -96,7 +96,10 @@ final class AppState {
                     // Joining an existing family instead of creating one.
                     try await service.acceptInvite(code: draftInviteCode.trimmingCharacters(in: .whitespaces))
                 } else {
-                    _ = try await service.finalizeOnboarding(userID: userID, draftMembers: draftMembers)
+                    // Only caregivers set up family members during onboarding;
+                    // drop drafts left over from toggling roles.
+                    let members = draftRole == .caregiver ? draftMembers : []
+                    _ = try await service.finalizeOnboarding(userID: userID, draftMembers: members)
                 }
             } catch {
                 // Family setup can be retried from Settings later; don't block sign-in.

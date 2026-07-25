@@ -102,11 +102,17 @@ final class DashboardViewModel {
         }
     }
 
-    /// Today's medications for a member, with display status.
-    func todaysMedications(for member: FamilyMember) -> [(medication: Medication, status: DoseDisplayStatus)] {
+    /// Today's medications for a member, with display status and, for taken
+    /// doses, the time they were confirmed.
+    func todaysMedications(for member: FamilyMember) -> [(medication: Medication, status: DoseDisplayStatus, takenAt: Date?)] {
         (medicationsByMember[member.id] ?? [])
             .filter { $0.isScheduled(on: .now) }
-            .map { ($0, DoseDisplayStatus(logStatus: todayLogByMedication[$0.id]?.status)) }
+            .map { medication in
+                let log = todayLogByMedication[medication.id]
+                return (medication,
+                        DoseDisplayStatus(logStatus: log?.status),
+                        log?.status == .taken ? log?.confirmedAt : nil)
+            }
     }
 
     func addMember(_ draft: DraftFamilyMember) async {

@@ -16,7 +16,6 @@ struct DraftFamilyMember: Identifiable, Hashable {
     var name: String
     var email: String = ""
     var phone: String = ""
-    var isRemote: Bool = true
 }
 
 struct OnboardingService {
@@ -31,7 +30,6 @@ struct OnboardingService {
         let family_id: UUID
         let profile_id: UUID?
         let relationship_label: String
-        let is_remote: Bool
         let invite_email: String?
         let phone: String?
     }
@@ -51,7 +49,6 @@ struct OnboardingService {
             family_id: family.id,
             profile_id: userID,
             relationship_label: "Me",
-            is_remote: false,
             invite_email: nil,
             phone: nil
         )]
@@ -60,7 +57,6 @@ struct OnboardingService {
                 family_id: family.id,
                 profile_id: nil,
                 relationship_label: draft.name,
-                is_remote: draft.isRemote,
                 invite_email: draft.email.isEmpty ? nil : draft.email,
                 phone: draft.phone.isEmpty ? nil : draft.phone
             )

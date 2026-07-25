@@ -21,7 +21,7 @@ struct DashboardView: View {
                     VStack(alignment: .leading, spacing: 16) {
                         header
 
-                        Text("Today · \(Date.now.formatted(.dateTime.weekday(.wide)))")
+                        Text(Date.now.formatted(.dateTime.weekday(.wide).day().month(.wide)))
                             .font(.subheadline)
                             .foregroundStyle(Theme.secondaryText)
 
@@ -37,7 +37,7 @@ struct DashboardView: View {
                                     FamilyMemberCard(
                                         name: member.displayName,
                                         medications: viewModel.todaysMedications(for: member).map {
-                                            ($0.medication.name, $0.medication.displayTime, $0.status)
+                                            ($0.medication.name, $0.medication.displayTime, $0.status, $0.takenAt)
                                         }
                                     )
                                 }
@@ -52,6 +52,7 @@ struct DashboardView: View {
                                 .font(.subheadline.bold())
                                 .foregroundStyle(Theme.primary)
                                 .frame(minHeight: Theme.minTapTarget)
+                                .contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
 

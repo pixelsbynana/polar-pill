@@ -157,9 +157,11 @@ final class ReportsViewModel {
         case .yearly: (.month, .dateTime.month(.narrow))
         }
 
+        // Always render the full period (including future days, which show
+        // as empty stubs) so a week is always Mon–Sun.
         var days: [AdherenceDay] = []
         var cursor = start
-        while cursor < end && cursor <= .now {
+        while cursor < end {
             guard let bucketEnd = calendar.date(byAdding: bucketComponent, value: 1, to: cursor) else { break }
             let bucketLogs = logs.filter { $0.scheduledFor >= cursor && $0.scheduledFor < bucketEnd }
             let taken = bucketLogs.filter { $0.status == .taken }.count

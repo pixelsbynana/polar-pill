@@ -26,6 +26,9 @@ enum Theme {
     static let navy = Color(hex: 0x141C2E)
     /// Muted secondary text.
     static let secondaryText = Color(hex: 0x8A8A8E)
+    /// Darker secondary text for patient-facing details (dose, time) that
+    /// elderly users must read clearly.
+    static let strongSecondaryText = Color(hex: 0x48484C)
     /// Neutral gray for missed days in the weekly bar chart.
     static let chartGray = Color(hex: 0xC7C7CC)
 

@@ -19,6 +19,8 @@ struct MedicationRow: View {
     var dosage: String = ""
     let time: String
     let status: DoseDisplayStatus
+    /// When the dose was actually confirmed (shown for taken doses).
+    var takenAt: Date? = nil
     var layout: Layout = .detail
 
     var body: some View {
@@ -27,17 +29,23 @@ struct MedicationRow: View {
                 .foregroundStyle(Theme.secondaryText)
                 .font(layout == .detail ? .body : .subheadline)
 
-            if layout == .compact {
-                (Text(name).bold() + Text(" · \(time)").foregroundColor(Theme.secondaryText))
-                    .font(.subheadline)
-                    .lineLimit(1)
-            } else {
-                VStack(alignment: .leading, spacing: 3) {
+            VStack(alignment: .leading, spacing: 3) {
+                if layout == .compact {
+                    (Text(name).bold() + Text(" · \(time)").foregroundColor(Theme.secondaryText))
+                        .font(.subheadline)
+                        .lineLimit(1)
+                } else {
                     (Text(name).bold() + Text(dosage.isEmpty ? "" : " \(dosage)").foregroundColor(Theme.secondaryText))
                         .font(.body)
                     Text(time)
                         .font(.subheadline)
                         .foregroundStyle(Theme.secondaryText)
+                }
+
+                if let takenAt {
+                    Text("Taken at \(takenAt.formatted(date: .omitted, time: .shortened))")
+                        .font(.caption)
+                        .foregroundStyle(Theme.primary)
                 }
             }
 
@@ -52,9 +60,9 @@ struct MedicationRow: View {
 
 #Preview {
     VStack(spacing: 16) {
-        MedicationRow(name: "Metformin", time: "8:00 AM", status: .taken, layout: .compact)
+        MedicationRow(name: "Metformin", time: "8:00 AM", status: .taken, takenAt: .now, layout: .compact)
         MedicationRow(name: "Ramipril", time: "12:00 PM", status: .missed, layout: .compact)
-        MedicationRow(name: "Metformin", dosage: "500mg", time: "8:00 AM", status: .taken)
+        MedicationRow(name: "Metformin", dosage: "500mg", time: "8:00 AM", status: .taken, takenAt: .now)
         MedicationRow(name: "Atorvastatin", dosage: "20mg", time: "9:00 PM", status: .later)
     }
     .padding()

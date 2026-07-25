@@ -111,20 +111,15 @@ struct OnboardingView: View {
                     rolePicker
                         .padding(.top, 24)
 
-                    familySection
-                        .padding(.top, 32)
-
-                    Button {
-                        showInviteCodeSheet = true
-                    } label: {
-                        Text(appState.draftInviteCode.isEmpty
-                             ? "Have an invite code?"
-                             : "Joining with code \(appState.draftInviteCode)")
-                            .font(.subheadline.bold())
-                            .foregroundStyle(Theme.primary)
-                            .frame(minHeight: Theme.minTapTarget)
+                    // Caregivers set up their family here; patients typically
+                    // join an existing one with an invite code instead.
+                    if appState.draftRole == .caregiver {
+                        familySection
+                            .padding(.top, 32)
                     }
-                    .padding(.top, 12)
+
+                    inviteCodeCard
+                        .padding(.top, appState.draftRole == .caregiver ? 24 : 32)
                 }
                 .padding(.horizontal, 24)
                 .padding(.bottom, 100)
@@ -176,9 +171,57 @@ struct OnboardingView: View {
                     RoundedRectangle(cornerRadius: 14)
                         .stroke(appState.draftRole == role ? Theme.primary : .clear, lineWidth: 1.5)
                 )
+                .contentShape(RoundedRectangle(cornerRadius: 14))
         }
         .buttonStyle(.plain)
         .accessibilityAddTraits(appState.draftRole == role ? .isSelected : [])
+    }
+
+    // MARK: - Invite code card
+
+    private var inviteCodeCard: some View {
+        Button {
+            showInviteCodeSheet = true
+        } label: {
+            HStack(spacing: 14) {
+                Image(systemName: "ticket")
+                    .font(.title3)
+                    .foregroundStyle(Theme.primary)
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(appState.draftInviteCode.isEmpty
+                         ? "Have an invite code?"
+                         : "Joining with code \(appState.draftInviteCode)")
+                        .font(.body.bold())
+                        .foregroundStyle(.primary)
+                    Text(appState.draftInviteCode.isEmpty
+                         ? "Join your family's existing account"
+                         : "Tap to change the code")
+                        .font(.subheadline)
+                        .foregroundStyle(Theme.secondaryText)
+                }
+
+                Spacer()
+
+                Image(systemName: "chevron.right")
+                    .font(.subheadline)
+                    .foregroundStyle(Theme.secondaryText)
+            }
+            .padding(16)
+            .background(
+                appState.draftInviteCode.isEmpty ? Theme.card : Theme.primaryTint,
+                in: RoundedRectangle(cornerRadius: Theme.cornerRadius)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: Theme.cornerRadius)
+                    .stroke(appState.draftInviteCode.isEmpty ? Theme.cardBorder : Theme.primary,
+                            lineWidth: appState.draftInviteCode.isEmpty ? 1 : 1.5)
+            )
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(appState.draftInviteCode.isEmpty
+                            ? "Enter an invite code to join your family"
+                            : "Joining with code \(appState.draftInviteCode), tap to change")
     }
 
     // MARK: - Family list
@@ -201,6 +244,7 @@ struct OnboardingView: View {
                     .font(.body.bold())
                     .foregroundStyle(Theme.primary)
                     .frame(minHeight: Theme.minTapTarget)
+                    .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
             .padding(.leading, 4)
@@ -225,15 +269,8 @@ private struct FamilyMemberDraftRow: View {
                         .font(.title3)
                 )
 
-            VStack(alignment: .leading, spacing: 2) {
-                Text(member.name)
-                    .font(.body.bold())
-                if member.isRemote {
-                    Text("Remote")
-                        .font(.subheadline)
-                        .foregroundStyle(Theme.secondaryText)
-                }
-            }
+            Text(member.name)
+                .font(.body.bold())
 
             Spacer()
 

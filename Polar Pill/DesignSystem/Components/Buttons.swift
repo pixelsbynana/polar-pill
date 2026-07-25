@@ -24,6 +24,7 @@ struct PrimaryButton: View {
             }
             .frame(maxWidth: .infinity)
             .frame(minHeight: Theme.minTapTarget + 8)
+            .contentShape(RoundedRectangle(cornerRadius: 14)) // whole button tappable
         }
         .buttonStyle(.plain)
         .background(Theme.primary, in: RoundedRectangle(cornerRadius: 14))
@@ -47,6 +48,7 @@ struct SecondaryButton: View {
             }
             .frame(maxWidth: .infinity)
             .frame(minHeight: Theme.minTapTarget + 8)
+            .contentShape(RoundedRectangle(cornerRadius: 14)) // whole button tappable
         }
         .buttonStyle(.plain)
         .background(Theme.card, in: RoundedRectangle(cornerRadius: 14))

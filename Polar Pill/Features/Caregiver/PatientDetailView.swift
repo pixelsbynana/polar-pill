@@ -43,7 +43,8 @@ struct PatientDetailView: View {
                                     name: item.medication.name,
                                     dosage: item.medication.dosage,
                                     time: item.medication.displayTime,
-                                    status: item.status
+                                    status: item.status,
+                                    takenAt: item.takenAt
                                 )
                                 .padding(.horizontal, 16)
                                 .padding(.vertical, 10)
@@ -77,7 +78,7 @@ struct PatientDetailView: View {
                 Button {
                     showAddMedication = true
                 } label: {
-                    Image(systemName: "square.and.pencil")
+                    Image(systemName: "plus")
                 }
                 .accessibilityLabel("Add medication")
             }

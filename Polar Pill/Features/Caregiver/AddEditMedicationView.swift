@@ -26,6 +26,7 @@ struct AddEditMedicationView: View {
     @State private var isSaving = false
     @State private var errorMessage: String?
     @State private var showQRLabel = false
+    @State private var showDeleteConfirmation = false
 
     private static let weekdayNames = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
 
@@ -67,13 +68,36 @@ struct AddEditMedicationView: View {
                         }
 
                         field("Assign to") {
-                            HStack(spacing: 0) {
+                            // Dropdown of family members — scales better than
+                            // segmented buttons as the family grows.
+                            Menu {
                                 ForEach(members) { member in
-                                    memberButton(member)
+                                    Button {
+                                        assignedMemberID = member.id
+                                    } label: {
+                                        if assignedMemberID == member.id {
+                                            Label(member.displayName, systemImage: "checkmark")
+                                        } else {
+                                            Text(member.displayName)
+                                        }
+                                    }
                                 }
+                            } label: {
+                                HStack {
+                                    Text(members.first { $0.id == assignedMemberID }?.displayName ?? "Choose a family member")
+                                        .foregroundStyle(assignedMemberID == nil ? Theme.secondaryText : .primary)
+                                    Spacer()
+                                    Image(systemName: "chevron.up.chevron.down")
+                                        .font(.footnote)
+                                        .foregroundStyle(Theme.secondaryText)
+                                }
+                                .padding(14)
+                                .frame(minHeight: Theme.minTapTarget)
+                                .background(Theme.card, in: RoundedRectangle(cornerRadius: 12))
+                                .overlay(RoundedRectangle(cornerRadius: 12).stroke(Theme.cardBorder, lineWidth: 1))
+                                .contentShape(RoundedRectangle(cornerRadius: 12))
                             }
-                            .background(Theme.card, in: RoundedRectangle(cornerRadius: 12))
-                            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Theme.cardBorder, lineWidth: 1))
+                            .accessibilityLabel("Assign to family member")
                         }
 
                         field("Time of day") {
@@ -106,12 +130,32 @@ struct AddEditMedicationView: View {
                             .overlay(RoundedRectangle(cornerRadius: 12).stroke(Theme.cardBorder, lineWidth: 1))
                         }
 
-                        // Printable QR label for the medication box (existing meds only).
+                        // Printable QR label + delete (existing meds only).
                         if existing != nil {
                             SecondaryButton(title: "Print QR label", systemImage: "qrcode") {
                                 showQRLabel = true
                             }
                             .padding(.top, 6)
+
+                            Button {
+                                showDeleteConfirmation = true
+                            } label: {
+                                HStack(spacing: 8) {
+                                    Image(systemName: "trash")
+                                    Text("Delete medication")
+                                        .fontWeight(.bold)
+                                }
+                                .foregroundStyle(Theme.danger)
+                                .frame(maxWidth: .infinity)
+                                .frame(minHeight: Theme.minTapTarget + 8)
+                                .contentShape(RoundedRectangle(cornerRadius: 14))
+                            }
+                            .buttonStyle(.plain)
+                            .background(Theme.card, in: RoundedRectangle(cornerRadius: 14))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 14)
+                                    .stroke(Theme.danger.opacity(0.5), lineWidth: 1)
+                            )
                         }
 
                         if let errorMessage {
@@ -121,23 +165,6 @@ struct AddEditMedicationView: View {
                         }
                     }
                     .padding(20)
-                    .padding(.bottom, 90)
-                }
-
-                VStack {
-                    Spacer()
-                    if isSaving {
-                        ProgressView()
-                            .padding(.bottom, 24)
-                    } else {
-                        PrimaryButton(title: "Save medication") {
-                            Task { await save() }
-                        }
-                        .opacity(canSave ? 1 : 0.5)
-                        .disabled(!canSave)
-                        .padding(.horizontal, 20)
-                        .padding(.bottom, 12)
-                    }
                 }
             }
             .navigationTitle(existing == nil ? "Add medication" : "Edit medication")
@@ -146,6 +173,31 @@ struct AddEditMedicationView: View {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
                 }
+                // Save lives top-right, matching Cancel's style but bold + blue.
+                ToolbarItem(placement: .confirmationAction) {
+                    if isSaving {
+                        ProgressView()
+                    } else {
+                        Button("Save") {
+                            Task { await save() }
+                        }
+                        .fontWeight(.bold)
+                        .foregroundStyle(canSave ? Theme.primary : Theme.secondaryText)
+                        .disabled(!canSave)
+                    }
+                }
+            }
+            .confirmationDialog(
+                "Delete \(existing?.name ?? "medication")?",
+                isPresented: $showDeleteConfirmation,
+                titleVisibility: .visible
+            ) {
+                Button("Delete medication", role: .destructive) {
+                    Task { await deleteMedication() }
+                }
+                Button("Cancel", role: .cancel) {}
+            } message: {
+                Text("This also removes its dose history and reminders. This can't be undone.")
             }
             .sheet(isPresented: $showQRLabel) {
                 if let existing {
@@ -169,27 +221,6 @@ struct AddEditMedicationView: View {
         }
     }
 
-    private func memberButton(_ member: FamilyMember) -> some View {
-        Button {
-            assignedMemberID = member.id
-        } label: {
-            Text(member.displayName)
-                .font(.body.weight(assignedMemberID == member.id ? .bold : .regular))
-                .frame(maxWidth: .infinity)
-                .frame(minHeight: Theme.minTapTarget)
-                .background(
-                    assignedMemberID == member.id ? Theme.primaryTint : .clear,
-                    in: RoundedRectangle(cornerRadius: 12)
-                )
-                .overlay(
-                    RoundedRectangle(cornerRadius: 12)
-                        .stroke(assignedMemberID == member.id ? Theme.primary : .clear, lineWidth: 1.5)
-                )
-        }
-        .buttonStyle(.plain)
-        .accessibilityAddTraits(assignedMemberID == member.id ? .isSelected : [])
-    }
-
     private func frequencyRadio(_ option: MedFrequency) -> some View {
         Button {
             frequency = option
@@ -201,6 +232,7 @@ struct AddEditMedicationView: View {
                 Spacer()
             }
             .frame(minHeight: Theme.minTapTarget - 6)
+            .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
         .accessibilityAddTraits(frequency == option ? .isSelected : [])
@@ -243,9 +275,24 @@ struct AddEditMedicationView: View {
                     RoundedRectangle(cornerRadius: 12)
                         .stroke(remindersEnabled == value ? Theme.primary : .clear, lineWidth: 1.5)
                 )
+                .contentShape(RoundedRectangle(cornerRadius: 12))
         }
         .buttonStyle(.plain)
         .accessibilityAddTraits(remindersEnabled == value ? .isSelected : [])
+    }
+
+    // MARK: - Deleting
+
+    private func deleteMedication() async {
+        guard let client = SupabaseService.shared?.client, let existing else { return }
+        isSaving = true
+        defer { isSaving = false }
+        do {
+            try await DataService(client: client).deleteMedication(id: existing.id)
+            dismiss()
+        } catch {
+            errorMessage = error.localizedDescription
+        }
     }
 
     // MARK: - Saving

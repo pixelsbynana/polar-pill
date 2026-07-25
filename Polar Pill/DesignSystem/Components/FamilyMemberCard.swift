@@ -10,8 +10,8 @@ import SwiftUI
 
 struct FamilyMemberCard: View {
     let name: String
-    /// (name, time, status) per medication scheduled today.
-    let medications: [(name: String, time: String, status: DoseDisplayStatus)]
+    /// (name, time, status, takenAt) per medication scheduled today.
+    let medications: [(name: String, time: String, status: DoseDisplayStatus, takenAt: Date?)]
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -40,7 +40,7 @@ struct FamilyMemberCard: View {
             } else {
                 VStack(spacing: 4) {
                     ForEach(Array(medications.enumerated()), id: \.offset) { _, med in
-                        MedicationRow(name: med.name, time: med.time, status: med.status, layout: .compact)
+                        MedicationRow(name: med.name, time: med.time, status: med.status, takenAt: med.takenAt, layout: .compact)
                     }
                 }
                 .padding(.horizontal, 16)
@@ -58,11 +58,11 @@ struct FamilyMemberCard: View {
 #Preview {
     VStack(spacing: 16) {
         FamilyMemberCard(name: "Mum", medications: [
-            ("Metformin", "8:00 AM", .taken),
-            ("Ramipril", "12:00 PM", .missed),
+            ("Metformin", "8:00 AM", .taken, .now),
+            ("Ramipril", "12:00 PM", .missed, nil),
         ])
         FamilyMemberCard(name: "Dad", medications: [
-            ("Warfarin", "7:00 AM", .taken),
+            ("Warfarin", "7:00 AM", .taken, .now),
         ])
     }
     .padding()

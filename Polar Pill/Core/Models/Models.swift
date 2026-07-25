@@ -48,7 +48,6 @@ struct FamilyMember: Codable, Identifiable, Sendable, Hashable {
     let familyID: UUID
     var profileID: UUID?
     var relationshipLabel: String?
-    var isRemote: Bool
     var inviteEmail: String?
     let inviteCode: String
     var phone: String?
@@ -60,7 +59,6 @@ struct FamilyMember: Codable, Identifiable, Sendable, Hashable {
         case familyID = "family_id"
         case profileID = "profile_id"
         case relationshipLabel = "relationship_label"
-        case isRemote = "is_remote"
         case inviteEmail = "invite_email"
         case inviteCode = "invite_code"
         case phone

@@ -12,7 +12,6 @@ struct AddFamilyMemberSheet: View {
     @State private var name = ""
     @State private var email = ""
     @State private var phone = ""
-    @State private var isRemote = true
     let onAdd: (DraftFamilyMember) -> Void
 
     var body: some View {
@@ -24,14 +23,13 @@ struct AddFamilyMemberSheet: View {
                     .textInputAutocapitalization(.never)
                 TextField("Phone number (optional)", text: $phone)
                     .keyboardType(.phonePad)
-                Toggle("Lives remotely", isOn: $isRemote)
             }
             .navigationTitle("Add family member")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Add") {
-                        onAdd(DraftFamilyMember(name: name, email: email, phone: phone, isRemote: isRemote))
+                        onAdd(DraftFamilyMember(name: name, email: email, phone: phone))
                         dismiss()
                     }
                     .disabled(name.trimmingCharacters(in: .whitespaces).isEmpty)

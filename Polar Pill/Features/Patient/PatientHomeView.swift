@@ -178,9 +178,10 @@ struct PatientHomeView: View {
                 Text(next.medication.name)
                     .font(.title.bold())
 
+                // Larger, darker dose + time so elderly users can read it at a glance.
                 Text("\(next.medication.dosage)\(next.medication.dosage.isEmpty ? "" : " · ")\(next.medication.displayTime)")
-                    .font(.body)
-                    .foregroundStyle(Theme.secondaryText)
+                    .font(.title2.weight(.semibold))
+                    .foregroundStyle(Theme.strongSecondaryText)
 
                 // QR is the primary confirmation path for the MVP
                 // (NFC deliberately skipped; the waiting state below is
@@ -240,10 +241,17 @@ struct PatientHomeView: View {
                 let status = DoseDisplayStatus(logStatus: item.log?.status)
                 HStack(spacing: 12) {
                     Image(systemName: status == .taken ? "checkmark.circle" : "clock")
-                        .foregroundStyle(status == .taken ? Theme.primary : Theme.secondaryText)
-                    (Text(item.medication.name).bold()
-                     + Text(" · \(item.medication.displayTime)").foregroundColor(Theme.secondaryText))
-                        .font(.body)
+                        .foregroundStyle(status == .taken ? Theme.primary : Theme.strongSecondaryText)
+                    VStack(alignment: .leading, spacing: 2) {
+                        (Text(item.medication.name).bold()
+                         + Text(" · \(item.medication.displayTime)").foregroundColor(Theme.strongSecondaryText))
+                            .font(.title3)
+                        if status == .taken, let confirmedAt = item.log?.confirmedAt {
+                            Text("Taken at \(confirmedAt.formatted(date: .omitted, time: .shortened))")
+                                .font(.subheadline)
+                                .foregroundStyle(Theme.primary)
+                        }
+                    }
                     Spacer()
                     StatusBadge(status: status)
                 }

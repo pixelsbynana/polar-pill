@@ -66,6 +66,7 @@ struct CelebrationView: View {
                             RoundedRectangle(cornerRadius: 14)
                                 .stroke(.white.opacity(0.6), lineWidth: 1)
                         )
+                        .contentShape(RoundedRectangle(cornerRadius: 14))
                 }
                 .buttonStyle(.plain)
                 .padding(.top, 12)
