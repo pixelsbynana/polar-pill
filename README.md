@@ -6,7 +6,7 @@ Polar Pill is a native iOS medication companion for families and carers. It help
 
 ## Features
 
-**For patients** (designed for elderly users — big targets, few taps, Dynamic Type up to accessibility sizes):
+**For patients** (designed for elderly users — big targets, few taps):
 - "Good morning" home screen showing the next dose front and center
 - Confirm a dose by scanning the QR label on the medication box (or manually)
 - Celebration screen with adherence streaks
@@ -16,7 +16,7 @@ Polar Pill is a native iOS medication companion for families and carers. It help
 **For caregivers:**
 - Family dashboard with each member's medications and live Taken/Missed/Later statuses (Supabase Realtime)
 - Add/edit medications: dosage, time, daily/weekly/custom schedules, reminders
-- Printable QR labels for medication boxes (AirPrint / PDF, sheet of 6 cut-out labels)
+- Printable QR labels for medication boxes (AirPrint / PDF)
 - Missed-dose alerts: a server-side sweep flags overdue doses and notifies caregivers, with a "Check in on Mum" screen and one-tap calling
 - Weekly/Monthly/Yearly adherence reports: charts, plain-language summary, PDF export to share with clinicians
 - Family invites via shareable codes
