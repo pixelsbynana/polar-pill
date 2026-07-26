@@ -50,6 +50,15 @@ supabase/migrations/   Database schema, RLS policies, functions
 - Every table is protected by Row Level Security: patients access only their own data, caregivers only their linked family — enforced in Postgres, not the client.
 - The anon key in `Config.xcconfig` is a public client key gated by RLS; no privileged keys ever ship in the app.
 
----
+## Future roadmap
 
-*Built as an MVP. NFC tap-to-confirm and AI-generated summaries are designed for but intentionally out of scope.*
+Designed for but out of scope in the current build.
+
+### NFC tap-to-confirm
+
+Put an NFC tag on the medication box so a patient can confirm a dose with a tap instead of scanning a QR code. Each tag holds a URL to the confirm endpoint, so a tap works on any modern iPhone with no app install. QR stays as the fallback.
+
+### Polar voice agent
+
+An outbound agent a caregiver can send to phone a family member, remind them warmly to take their medication, and take a verbal confirmation that writes back to Supabase and updates the dashboard. Built on ElevenLabs Conversational AI for voice, Twilio for telephony, and Supabase Edge Functions to trigger the call and receive the result (no keys in the app), with a 10-minute cap. Automated health calls to vulnerable people need consent, opt-out, calling-hour limits, agent self-identification, and a data-protection review first (see COMPLIANCE-automated-calling.md). Out of scope for now because importing a voice number takes a few days of carrier verification; an interim version runs the same agent as in-app voice.
+
