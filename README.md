@@ -4,7 +4,7 @@
 
 Polar Pill is a native iOS medication companion for families and carers. It helps elderly patients, people with multiple chronic conditions, and patients with memory problems stay on top of their medication — while giving remote family members visibility and peace of mind.
 
-![alt text](https://github.com/pixelsbynana/polar-pill/blob/main/screenshots/1IMG_5738.JPG | width = 100)
+![alt text](https://github.com/pixelsbynana/polar-pill/blob/main/screenshots/1IMG_5738.JPG)
 
 ## Features
 
