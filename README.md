@@ -9,7 +9,7 @@ Polar Pill is a native iOS medication companion for families and carers. It help
 ## Features
 
 **For patients** (designed for elderly users — big targets, few taps):
-- "Good morning" home screen showing the next dose front and center
+- Home screen showing the next dose front and center
 - Confirm a dose by scanning the QR label on the medication box (or manually)
 - Celebration screen with adherence streaks
 - One-tap "Call a family member"
