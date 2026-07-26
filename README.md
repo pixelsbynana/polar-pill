@@ -1,8 +1,8 @@
 # Polar Pill 🐻‍❄️💊
 
-**Medication support built for families.**
-
 [![Watch the demo](https://img.shields.io/badge/▶%20Watch-%20Demo-red?style=for-the-badge&logo=youtube&logoColor=white)](https://youtu.be/7IoElkxIfA4)
+
+**Medication support built for families.**
 
 Polar Pill is a native iOS medication companion for families and carers. It helps elderly patients, people with multiple chronic conditions, and patients with memory problems stay on top of their medication — while giving remote family members visibility and peace of mind.
 
